@@ -1,4 +1,5 @@
-import math
+import os
+from dotenv import load_dotenv
 from geopy.distance import geodesic 
 import gspread
 from gspread_dataframe import set_with_dataframe, get_as_dataframe
@@ -59,8 +60,20 @@ def calculatePoints(sheet):
     #resets points to 0 before updating
     df["Distance"] = 0
     df["Points"] = 0
+    #casting to float to avoid implicit conversion error in future 
+    df["Points"] = df["Points"].astype(float)
+    df["Distance"] = df["Distance"].astype(float)
     
-    flag = False #only make this true if actually updating the leaderboard.
+    bonusFlag = False #only make this true if I am actually updating the leaderboard.
+    if (bonusFlag):
+        while True:
+            print("Type in 'CONFIRM' to proceed with updating bonuses:")
+            userInput = input()
+            if (userInput == "CONFIRM"):
+                break
+            else:
+                print("Input not recognized, try again.")
+        #end while
     for i in range(len(submissions)):
         print("Score for player " + submissions[i][2]+" is", end = " ")
         score = 0.25*((40000/2)-submissions[i][1])+5000*((len(submissions)-i-1)/(len(submissions)-1))+submissions[i][4]
@@ -73,8 +86,8 @@ def calculatePoints(sheet):
         print(round(score, 2), end = ", ")
         print("position " + str(i+1)+", distance "+str(round(submissions[i][1], 2)))
 
-        df.at[submissions[i][2], "Points"] = round(score, 2)
-        if flag:
+        df.at[submissions[i][2], "Points"] = round(score, 2) 
+        if bonusFlag:
             df.at[submissions[i][2], "Total Bonuses"] += submissions[i][4]
 
         df.loc[df["Name2"] == submissions[i][2], "Distance"] = round(submissions[i][1], 2)
@@ -83,7 +96,9 @@ def calculatePoints(sheet):
     return df
 
 def main():
-    creds = gspread.service_account("insertGspreadAccountName.json")
+    load_dotenv()  # loads variables from .env
+    json_path = os.getenv("GOOGLE_SA_KEY")
+    creds = gspread.service_account(filename=json_path)
     sheet = creds.open("TestSheet").sheet1
 
     data = calculatePoints(sheet)
