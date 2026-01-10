@@ -4,14 +4,13 @@ from geopy.distance import geodesic
 import gspread
 from gspread_dataframe import set_with_dataframe, get_as_dataframe
 import pandas as pd
-from google.oauth2.service_account import Credentials
-
 
 def calculatePoints(sheet):
     location = (-22.82961006324438, -43.00524615174737) #location for round
 
     #the first element is the coordinates, second is distance (to be calculated), third is username
-    #fourth is whether they have submitted every round, fifth is bonus points. 
+    #fourth is whether they have submitted every round, fifth is bonus points.
+    #  
     submissions = [
         [[-33.98904, 151.23584], 0, "user1", True, 0],
         [[-45.03512, 168.65204], 0, "user2", True, 0],
@@ -83,6 +82,9 @@ def calculatePoints(sheet):
             score+=2000
         elif (i==2):
             score+=1000
+        #small area around antipode of the location for round where score would be negative, manually set to 0
+        if (score < 0):
+            score = 0
         print(round(score, 2), end = ", ")
         print("position " + str(i+1)+", distance "+str(round(submissions[i][1], 2)))
 
@@ -96,7 +98,7 @@ def calculatePoints(sheet):
     return df
 
 def main():
-    load_dotenv()  # loads variables from .env
+    load_dotenv()  # loads variables from .env variable in actual code: not included for security reasons
     json_path = os.getenv("GOOGLE_SA_KEY")
     creds = gspread.service_account(filename=json_path)
     sheet = creds.open("TestSheet").sheet1
