@@ -5,6 +5,42 @@ import gspread
 from gspread_dataframe import set_with_dataframe, get_as_dataframe
 import pandas as pd
 
+def writePingList(df, submissions):
+    pingList = df["PingList"].tolist()
+    submissionsUsers = [s[2] for s in submissions]
+    for elem in pingList:
+        if elem not in submissionsUsers:
+            print("@"+elem)
+    #end for
+    return None
+
+def writeBonusList(submissions):
+    bonusList1000 = []
+    bonusList750 = []
+    bonusList500 = []
+    bonusList = []
+    for s in submissions:
+        if s[4] == 1000:
+            bonusList1000.append(s[2])
+        elif s[4] == 750:
+            bonusList750.append(s[2])
+        elif s[4] == 500:
+            bonusList500.append(s[2])
+        elif s[4] == 250:
+            bonusList.append(s[2])
+            
+    if (len(bonusList1000) > 0):
+        print(f"+1000 points for finding the location first: @{bonusList1000[0]}")
+    if (len(bonusList750) > 0):
+        print(f"+750 points for finding the location second @{bonusList750[0]}", )
+    if (len(bonusList500) > 0):
+        print(f"+500 points for finding the location third @{bonusList500[0]}")
+    if (len(bonusList) > 0):
+        print(f"+250 points for finding the location:", end=" ")
+        for i in range(len(bonusList)):
+            print(f"@{bonusList[i]}", end = " ")
+    return None
+
 def calculatePoints(sheet):
     location = (-22.82961006324438, -43.00524615174737) #location for round
 
