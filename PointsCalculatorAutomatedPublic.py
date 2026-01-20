@@ -131,6 +131,11 @@ def calculatePoints(sheet):
         df.loc[df["Name2"] == submissions[i][2], "Distance"] = round(submissions[i][1], 2)
     #end for
     
+    runPingList = False #make true to run ping list update
+    if runPingList:
+        writePingList(df, submissions)
+
+    writeBonusList(submissions)
     return df
 
 def main():
